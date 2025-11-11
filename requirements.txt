@@ -1,0 +1,1 @@
+numpy==1.24.3\nopencv-python-headless==4.7.0\ntensorflow-aarch64==2.13.0
