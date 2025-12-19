@@ -1,26 +1,25 @@
-# Crop Stress Early Warning System
+Crop Stress Early Warning System
 
-## Multi-Modal Predictive System for Early Detection of Crop Stress
+Multi-Modal Predictive System for Early Detection of Crop Stress
 
-### Research Hypothesis
+Research Hypothesis
 
-**"Soil microbial activity (CO₂ respiration flux) combined with plant volatile organic compounds (VOCs) provides a 24-48 hour early warning of crop stress before visible symptoms (NDVI decline) appear, with >90% prediction accuracy."**
+"Soil microbial activity (CO₂ respiration flux) combined with plant volatile organic compounds (VOCs) provides a 24-48 hour early warning of crop stress before visible symptoms (NDVI decline) appear, with >90% prediction accuracy."
 
 This system integrates three complementary data streams:
-1. **Soil Biology**: CO₂ respiration flux (microbes respond within hours)
-2. **Plant Chemistry**: VOC emissions via gas resistance (plants "scream" chemically when stressed)
-3. **Plant Physiology**: NDVI from near-infrared imaging (visible symptoms appear last)
+1. Soil Biology: CO₂ respiration flux (microbes respond within hours)
+2. Plant Chemistry: VOC emissions via gas resistance (plants "scream" chemically when stressed)
+3. Plant Physiology: NDVI from near-infrared imaging (visible symptoms appear last)
 
-### Novel Contribution
+Novel Contribution
 
-Most crop monitoring systems detect stress **after** damage occurs. This system predicts stress **before** visible symptoms, enabling:
-- Preventive irrigation scheduling
-- Early intervention to minimize crop loss
-- Quantified lag time between biological indicators and plant damage
+Most crop monitoring systems detect stress after damage occurs. This system predicts stress before visible symptoms, enabling:
+Preventive irrigation scheduling
+Early intervention to minimize crop loss
+Quantified lag time between biological indicators and plant damage
 
-### System Architecture
+System Architecture
 
-```
 ┌─────────────────────────────────────────────────────────┐
 │                   SENSOR LAYER                          │
 ├─────────────────────────────────────────────────────────┤
@@ -55,34 +54,31 @@ Most crop monitoring systems detect stress **after** damage occurs. This system 
 │  - Confidence intervals                                 │
 │  - Feature importance analysis                          │
 └─────────────────────────────────────────────────────────┘
-```
 
-## Hardware Requirements
+Hardware Requirements
 
-### Core Components
+Core Components
 
-| Component | Model | Purpose | Cost |
-|-----------|-------|---------|------|
-| Microcontroller | Raspberry Pi 4 (4GB) | Main controller | $55 |
-| CO₂ Sensor | MH-Z19B | Soil respiration | $20 |
-| Climate Sensor | BME680 | Temp/Humidity/VOCs | $15 |
-| Camera | Pi NoIR Camera V2 | NDVI imaging | $30 |
-| Blue Filter | Rosco #2001 gel | NDVI calculation | $5 |
-| Chamber | Custom acrylic | CO₂ accumulation | $30 |
-| Power Supply | 5V 3A USB-C | Power | $10 |
-| SD Card | 64GB Class 10 | Storage | $15 |
-| **Total** | | | **~$180** |
+Component Model Purpose Cost
+Microcontroller Raspberry Pi 4 (4GB) Main controller $55
+CO₂ Sensor MH-Z19B Soil respiration $20
+Climate Sensor BME680 Temp/Humidity/VOCs $15
+Camera Pi NoIR Camera V2 NDVI imaging $30
+Blue Filter Rosco #2001 gel NDVI calculation $5
+Chamber Custom acrylic CO₂ accumulation $30
+Power Supply 5V 3A USB-C Power $10
+SD Card 64GB Class 10 Storage $15
+Total ~$180
 
-### Optional Components
-- Soil moisture sensor (capacitive): $8
-- Real-time clock module: $5
-- Solar panel + battery for field deployment: $50-100
+Optional Components
+Soil moisture sensor (capacitive): $8
+Real-time clock module: $5
+Solar panel + battery for field deployment: $50-100
 
-## Software Installation
+Software Installation
 
-### Prerequisites
+Prerequisites
 
-```bash
 # Python 3.8 or higher
 python3 --version
 
@@ -90,11 +86,9 @@ python3 --version
 sudo apt-get update
 sudo apt-get install -y python3-pip python3-venv
 sudo apt-get install -y libatlas-base-dev libopenjp2-7
-```
 
-### Setup
+Setup
 
-```bash
 # Clone repository
 git clone https://github.com/yourusername/crop-stress-early-warning.git
 cd crop-stress-early-warning
@@ -105,11 +99,9 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
-```
 
-### Hardware Setup (Raspberry Pi)
+Hardware Setup (Raspberry Pi)
 
-```bash
 # Enable I2C and Camera
 sudo raspi-config
 # Navigate to: Interface Options -> I2C -> Enable
@@ -119,17 +111,14 @@ sudo raspi-config
 pip install mh-z19
 pip install bme680
 pip install picamera2
-```
 
-## Usage
+Usage
 
-### Simulation Mode (No Hardware Required)
+Simulation Mode (No Hardware Required)
 
 Test the complete system without physical sensors:
 
-```bash
 python main.py --mode simulation
-```
 
 This will:
 1. Simulate a 17-day drought experiment (5 baseline + 9 drought + 3 recovery)
@@ -138,17 +127,14 @@ This will:
 4. Evaluate prediction performance at different horizons
 5. Save results to `data/`, `models/`, and `plots/`
 
-### Hardware Mode (With Sensors)
+Hardware Mode (With Sensors)
 
 Run with actual hardware:
 
-```bash
 python main.py --mode hardware
-```
 
-### Custom Experiments
+Custom Experiments
 
-```python
 from data.data_collector import DataCollector
 
 config = {
@@ -163,11 +149,9 @@ config = {
 collector = DataCollector(config)
 collector.calibrate_all_sensors()
 collector.run_continuous_collection(duration_hours=24)
-```
 
-## Project Structure
+Project Structure
 
-```
 crop-stress-early-warning/
 ├── main.py                      # Main entry point
 ├── requirements.txt             # Python dependencies
@@ -193,55 +177,53 @@ crop-stress-early-warning/
 │   └── images/                  # NDVI images
 ├── models/                      # Trained models
 └── plots/                       # Visualizations
-```
 
-## Experimental Protocol
+Experimental Protocol
 
-### Drought Stress Experiment
+Drought Stress Experiment
 
-**Objective**: Quantify lag time between soil respiration drop and NDVI decline
+Objective: Quantify lag time between soil respiration drop and NDVI decline
 
-**Protocol**:
-1. **Baseline Phase (5 days)**
-   - Water plants daily to field capacity
-   - Collect baseline measurements
-   - Establish normal respiration/NDVI ranges
+Protocol:
+1. Baseline Phase (5 days)
+   Water plants daily to field capacity
+   Collect baseline measurements
+   Establish normal respiration/NDVI ranges
 
-2. **Drought Phase (9 days)**
-   - Stop watering completely
-   - Continue measurements every 15 minutes
-   - Monitor respiration flux, VOCs, and NDVI
-   - Observe sequence: soil moisture → respiration → VOCs → stress → NDVI
+2. Drought Phase (9 days)
+   Stop watering completely
+   Continue measurements every 15 minutes
+   Monitor respiration flux, VOCs, and NDVI
+   Observe sequence: soil moisture → respiration → VOCs → stress → NDVI
 
-3. **Recovery Phase (3 days)**
-   - Resume daily watering
-   - Monitor recovery rates
-   - Validate reversibility
+3. Recovery Phase (3 days)
+   Resume daily watering
+   Monitor recovery rates
+   Validate reversibility
 
-**Expected Timeline**:
-- **Hour 0-24**: Soil moisture begins declining
-- **Hour 12-36**: Soil respiration drops (microbes respond)
-- **Hour 24-48**: VOC emissions increase (plant stress response)
-- **Hour 48-96**: NDVI begins declining (visible symptoms)
+Expected Timeline:
+Hour 0-24: Soil moisture begins declining
+Hour 12-36: Soil respiration drops (microbes respond)
+Hour 24-48: VOC emissions increase (plant stress response)
+Hour 48-96: NDVI begins declining (visible symptoms)
 
-**Key Metric**: Lag time between respiration drop and NDVI drop = **Early Warning Window**
+Key Metric: Lag time between respiration drop and NDVI drop = Early Warning Window
 
-## Data Analysis
+Data Analysis
 
-### Feature Engineering
+Feature Engineering
 
 The system creates 100+ features including:
-- **Time features**: Hour, day, time since start
-- **Climate stress**: VPD, temperature, humidity extremes
-- **Respiration**: Flux, quality (R²), deviation from baseline
-- **VOCs**: Gas resistance, log transform, stress indicator
-- **Rolling statistics**: 3, 6, 12, 24-hour windows
-- **Lag features**: 1, 3, 6, 12, 24-hour lags
-- **Rate features**: First and second derivatives
+Time features: Hour, day, time since start
+Climate stress: VPD, temperature, humidity extremes
+Respiration: Flux, quality (R²), deviation from baseline
+VOCs: Gas resistance, log transform, stress indicator
+Rolling statistics: 3, 6, 12, 24-hour windows
+Lag features: 1, 3, 6, 12, 24-hour lags
+Rate features: First and second derivatives
 
-### Model Training
+Model Training
 
-```python
 from models.stress_predictor import StressPredictor
 
 # Train model
@@ -256,153 +238,132 @@ lag_results = predictor.evaluate_lag_time(
 
 # Compare models
 comparison = predictor.compare_models(X, y)
-```
 
-## Testing Locations & Databases
+Testing Locations & Databases
 
-### Field Testing Sites
+Field Testing Sites
 
-1. **University Research Farms**
-   - UC Davis Student Farm: https://asi.ucdavis.edu/programs/sf
-   - Cornell AgriTech: https://cals.cornell.edu/cornell-agritech
-   - Texas A&M Research Farm: https://agrilife.org/
+1. University Research Farms
+   UC Davis Student Farm: https://asi.ucdavis.edu/programs/sf
+   Cornell AgriTech: https://cals.cornell.edu/cornell-agritech
+   Texas A&M Research Farm: https://agrilife.org/
 
-2. **Local Farms** (contact for partnerships)
-   - Community gardens
-   - Urban agriculture projects
-   - High school agricultural programs
+2. Local Farms (contact for partnerships)
+   Community gardens
+   Urban agriculture projects
+   High school agricultural programs
 
-### Climate & Agricultural Databases
+Climate & Agricultural Databases
 
-1. **NOAA Climate Data**: https://www.ncdc.noaa.gov/cdo-web/
-   - Historical weather data
-   - Drought indices
+1. NOAA Climate Data: https://www.ncdc.noaa.gov/cdo-web/
+   Historical weather data
+   Drought indices
 
-2. **NASA POWER**: https://power.larc.nasa.gov/
-   - Solar radiation, temperature, humidity
-   - Global coverage
+2. NASA POWER: https://power.larc.nasa.gov/
+   Solar radiation, temperature, humidity
+   Global coverage
 
-3. **USDA NASS**: https://www.nass.usda.gov/
-   - Crop yield data
-   - Agricultural statistics
+3. USDA NASS: https://www.nass.usda.gov/
+   Crop yield data
+   Agricultural statistics
 
-4. **FAO AQUASTAT**: https://www.fao.org/aquastat/
-   - Water stress indicators
-   - Irrigation data
+4. FAO AQUASTAT: https://www.fao.org/aquastat/
+   Water stress indicators
+   Irrigation data
 
-5. **Sentinel Hub**: https://www.sentinel-hub.com/
-   - Satellite NDVI data for validation
-   - Free tier available
+5. Sentinel Hub: https://www.sentinel-hub.com/
+   Satellite NDVI data for validation
+   Free tier available
 
-## Expected Outcomes
+Expected Outcomes
 
-### Primary Deliverables
+Primary Deliverables
 
-1. **Quantified Lag Time**
-   - Precise measurement of early warning window
-   - Statistical significance testing
-   - Confidence intervals
+1. Quantified Lag Time
+   Precise measurement of early warning window
+   Statistical significance testing
+   Confidence intervals
 
-2. **Prediction Model**
-   - Trained ML model (>90% accuracy target)
-   - Feature importance rankings
-   - Deployment-ready code
+2. Prediction Model
+   Trained ML model (>90% accuracy target)
+   Feature importance rankings
+   Deployment-ready code
 
-3. **Research Paper**
-   - Novel multi-modal approach
-   - Comparison: climate-only vs. climate+biology
-   - Practical applications
+3. Research Paper
+   Novel multi-modal approach
+   Comparison: climate-only vs. climate+biology
+   Practical applications
 
-4. **Open-Source System**
-   - Complete hardware design
-   - Software codebase
-   - Documentation
+4. Open-Source System
+   Complete hardware design
+   Software codebase
+   Documentation
 
-### Success Criteria
+Success Criteria
 
-- ✅ Demonstrate 24-48 hour early warning capability
-- ✅ Achieve >90% prediction accuracy (R² > 0.9)
-- ✅ Prove soil biology improves prediction vs. climate-only
-- ✅ Quantify cost-effectiveness (<$200 per monitoring station)
+✅ Demonstrate 24-48 hour early warning capability
+✅ Achieve >90% prediction accuracy (R² > 0.9)
+✅ Prove soil biology improves prediction vs. climate-only
+✅ Quantify cost-effectiveness (<$200 per monitoring station)
 
-## Timeline
+Timeline
 
-| Week | Phase | Activities |
-|------|-------|------------|
-| 1-2 | Hardware Setup | Assemble sensors, test components, calibrate |
-| 3-4 | Software Development | Complete code, test simulation mode |
-| 5-8 | Baseline Experiments | Run 3-4 drought cycles, collect data |
-| 9-12 | Data Analysis | Feature engineering, model training |
-| 13-16 | Validation | Test predictions, refine models |
-| 17-20 | Field Testing | Deploy at research farm (optional) |
-| 21-24 | Documentation | Write paper, create visualizations |
+Week Phase Activities
+1-2 Hardware Setup Assemble sensors, test components, calibrate
+3-4 Software Development Complete code, test simulation mode
+5-8 Baseline Experiments Run 3-4 drought cycles, collect data
+9-12 Data Analysis Feature engineering, model training
+13-16 Validation Test predictions, refine models
+17-20 Field Testing Deploy at research farm (optional)
+21-24 Documentation Write paper, create visualizations
 
-## Troubleshooting
+Troubleshooting
 
-### Common Issues
+Common Issues
 
-**CO₂ sensor not responding**
-```bash
+CO₂ sensor not responding
 # Check serial connection
 ls /dev/ttyUSB* /dev/ttyAMA*
 
 # Test sensor
 python -c "import mh_z19; print(mh_z19.read())"
-```
 
-**BME680 not detected**
-```bash
+BME680 not detected
 # Check I2C
 sudo i2cdetect -y 1
 # Should show device at 0x76 or 0x77
-```
 
-**Camera not working**
-```bash
+Camera not working
 # Test camera
 libcamera-still -o test.jpg
-```
 
-**Low prediction accuracy**
-- Ensure sufficient data (>500 samples)
-- Check for sensor calibration drift
-- Verify NDVI calculation (blue filter installed?)
-- Try different prediction horizons
+Low prediction accuracy
+Ensure sufficient data (>500 samples)
+Check for sensor calibration drift
+Verify NDVI calculation (blue filter installed?)
+Try different prediction horizons
 
-## Contributing
+Contributing
 
 Contributions welcome! Areas for improvement:
-- Additional sensor integrations
-- Advanced ML models (LSTM, Transformers)
-- Mobile app for monitoring
-- Cloud data sync
-- Multi-crop calibration
+Additional sensor integrations
+Advanced ML models (LSTM, Transformers)
+Mobile app for monitoring
+Cloud data sync
+Multi-crop calibration
 
-## License
+License
 
 MIT License - See LICENSE file
 
-## Citation
+Citation
 
 If you use this system in your research, please cite:
 
-```bibtex
 @software{crop_stress_early_warning,
   title={Multi-Modal Crop Stress Early Warning System},
   author={Your Name},
   year={2025},
   url={https://github.com/yourusername/crop-stress-early-warning}
 }
-```
 
-## Contact
-
-For questions or collaboration:
-- Email: your.email@example.com
-- GitHub Issues: https://github.com/yourusername/crop-stress-early-warning/issues
-
-## Acknowledgments
-
-- Inspired by research in precision agriculture and soil microbiology
-- Built for ISEF 2026 competition
-- Thanks to the open-source community for sensor libraries
