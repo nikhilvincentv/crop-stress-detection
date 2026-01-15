@@ -1,0 +1,1 @@
+[Unit]\nDescription=AgriSafe Boot Service\n[Service]\nExecStart=/usr/bin/python3 /home/pi/agrisafe/src/main.py
