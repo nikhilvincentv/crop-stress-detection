@@ -14,6 +14,7 @@ from data.data_collector import DataCollector
 from simulation.drought_simulator import DroughtSimulator
 from analysis.feature_engineering import FeatureEngineer
 from models.stress_predictor import StressPredictor
+from advice_generator import AdviceGenerator
 
 # Configure logging
 logging.basicConfig(
@@ -126,6 +127,54 @@ def run_simulation_mode():
         save_path=str(plots_dir / 'predictions.png')
     )
     
+    # Generate actionable advice based on final stress levels
+    logger.info("\n" + "="*60)
+    logger.info("GENERATING ACTIONABLE ADVICE")
+    logger.info("="*60)
+    
+    advice_gen = AdviceGenerator()
+    
+    # Get latest readings from simulation
+    latest_data = df.iloc[-1]
+    
+    # Calculate stress score (using NDVI decline as proxy)
+    # Stress increases as NDVI decreases from baseline
+    baseline_ndvi = df.iloc[:24]['ndvi'].mean()  # First day average
+    current_ndvi = latest_data['ndvi']
+    ndvi_decline = (baseline_ndvi - current_ndvi) / baseline_ndvi
+    stress_score = max(0.0, min(1.0, ndvi_decline * 2))  # Scale to 0-1
+    
+    # Determine trend
+    recent_stress = []
+    for i in range(max(0, len(df)-24), len(df)):
+        recent_ndvi = df.iloc[i]['ndvi']
+        recent_decline = (baseline_ndvi - recent_ndvi) / baseline_ndvi
+        recent_stress.append(max(0.0, recent_decline * 2))
+    
+    if len(recent_stress) > 1:
+        if recent_stress[-1] > recent_stress[0] + 0.05:
+            trend = 'increasing'
+        elif recent_stress[-1] < recent_stress[0] - 0.05:
+            trend = 'decreasing'
+        else:
+            trend = 'stable'
+    else:
+        trend = 'stable'
+    
+    # Generate and display advice report
+    report = advice_gen.generate_full_report(
+        stress_value=stress_score,
+        moisture=latest_data['soil_moisture'],
+        ndvi=current_ndvi,
+        trend=trend
+    )
+    
+    advice_gen.print_colored_report(report)
+    
+    # Also show simple advice
+    simple_advice = advice_gen.get_simple_advice(stress_score)
+    logger.info(f"Quick Summary: {simple_advice}")
+    
     logger.info("\n" + "="*60)
     logger.info("SIMULATION COMPLETE")
     logger.info("="*60)
@@ -197,6 +246,38 @@ def run_hardware_mode():
         logger.info("\nCollection Summary:")
         for key, value in summary.items():
             logger.info(f"  {key}: {value}")
+        
+        # Generate actionable advice for hardware mode
+        logger.info("\n" + "="*60)
+        logger.info("GENERATING ACTIONABLE ADVICE")
+        logger.info("="*60)
+        
+        advice_gen = AdviceGenerator()
+        
+        # Get latest sensor readings
+        latest_readings = collector.get_latest_readings()
+        
+        if latest_readings:
+            # Calculate stress score from readings
+            baseline_ndvi = 0.75  # Should be calibrated for specific crop
+            current_ndvi = latest_readings.get('ndvi', 0.5)
+            ndvi_decline = (baseline_ndvi - current_ndvi) / baseline_ndvi
+            stress_score = max(0.0, min(1.0, ndvi_decline * 2))
+            
+            # Generate and display advice
+            report = advice_gen.generate_full_report(
+                stress_value=stress_score,
+                moisture=latest_readings.get('soil_moisture', 0.5),
+                ndvi=current_ndvi,
+                trend='stable'  # Could be calculated from historical data
+            )
+            
+            advice_gen.print_colored_report(report)
+            
+            simple_advice = advice_gen.get_simple_advice(stress_score)
+            logger.info(f"Quick Summary: {simple_advice}")
+        else:
+            logger.warning("No sensor readings available for advice generation.")
 
 
 def main():
