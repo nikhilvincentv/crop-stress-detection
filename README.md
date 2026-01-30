@@ -25,3 +25,6 @@ Testing
   ```bash
   python main.py --mode simulation
   ```
+
+![IMG_6932](https://github.com/user-attachments/assets/dda0d567-755d-4496-91f0-6ccaaed2ee29)
+
