@@ -29,6 +29,7 @@ class ClimateSensor(BaseSensor):
                 - enable_gas: Enable gas/VOC measurements (default: True)
         """
         super().__init__("BME680_Climate", config)
+        self.simulation = config.get('simulation', False)
         # 0x77 is the address detected on the user's Pi
         self.i2c_address = config.get('i2c_address', 0x77) 
         self.temp_offset = config.get('temp_offset', 0)
