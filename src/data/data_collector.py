@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Dict, List, Optional
 from pathlib import Path
 import sys
+import pandas as pd
 
 # Add parent directory to path
 sys.path.append(str(Path(__file__).parent.parent))

@@ -52,6 +52,16 @@ class NDVICamera(BaseSensor):
         """Initialize the Pi NoIR camera."""
         try:
             self.camera = Picamera2()
+            
+            # Check for available cameras
+            cameras = self.camera.available_cameras
+            if not cameras:
+                logger.error("No cameras detected by libcamera")
+                self.camera = None
+                return
+            
+            logger.info(f"Found {len(cameras)} camera(s): {cameras}")
+            
             config = self.camera.create_still_configuration(
                 main={"size": self.resolution}
             )
@@ -59,6 +69,9 @@ class NDVICamera(BaseSensor):
             self.camera.start()
             time.sleep(2)  # Allow camera to warm up
             logger.info("Pi NoIR camera initialized successfully")
+        except IndexError:
+            logger.error("Failed to initialize camera: No camera found (IndexError)")
+            self.camera = None
         except Exception as e:
             logger.error(f"Failed to initialize camera: {e}")
             self.camera = None

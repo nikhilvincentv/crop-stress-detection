@@ -83,7 +83,16 @@ class DataLogger:
         # Initialize CSV writer if needed
         if self.csv_writer is None:
             self.csv_file = open(self.log_file, 'w', newline='')
-            self.csv_writer = csv.DictWriter(self.csv_file, fieldnames=flat_data.keys())
+            
+            # Define essential fields that should be in every record
+            # but allow new fields as they appear
+            fieldnames = list(flat_data.keys())
+            
+            self.csv_writer = csv.DictWriter(
+                self.csv_file, 
+                fieldnames=fieldnames,
+                extrasaction='ignore' # Avoid crashing if new fields appear later
+            )
             self.csv_writer.writeheader()
         
         # Write row

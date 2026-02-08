@@ -50,8 +50,14 @@ class CO2Sensor(BaseSensor):
                 data = mh_z19.read()
                 co2_ppm = data.get('co2', None)
                 return {'co2_ppm': co2_ppm}
+            except PermissionError:
+                logger.error("Permission denied to /dev/serial0. Try: sudo usermod -a -G dialout $USER && sudo chmod 666 /dev/serial0")
+                return {'co2_ppm': None}
             except Exception as e:
-                logger.error(f"Error reading CO2 sensor: {e}")
+                if "Permission denied" in str(e):
+                    logger.error("Permission denied to /dev/serial0. Try: sudo usermod -a -G dialout $USER && sudo chmod 666 /dev/serial0")
+                else:
+                    logger.error(f"Error reading CO2 sensor: {e}")
                 return {'co2_ppm': None}
         else:
             # Simulation mode

@@ -39,26 +39,37 @@ class ClimateSensor(BaseSensor):
     
     def _initialize_sensor(self):
         """Initialize the BME680 sensor with proper settings."""
-        try:
-            self.sensor = bme680.BME680(self.i2c_address)
-            
-            # Configure oversampling
-            self.sensor.set_humidity_oversample(bme680.OS_2X)
-            self.sensor.set_pressure_oversample(bme680.OS_4X)
-            self.sensor.set_temperature_oversample(bme680.OS_8X)
-            self.sensor.set_filter(bme680.FILTER_SIZE_3)
-            
-            # Configure gas sensor if enabled
-            if self.enable_gas:
-                self.sensor.set_gas_status(bme680.ENABLE_GAS_MEAS)
-                self.sensor.set_gas_heater_temperature(320)  # °C
-                self.sensor.set_gas_heater_duration(150)  # ms
-                self.sensor.select_gas_heater_profile(0)
-            
-            logger.info("BME680 sensor initialized successfully")
-        except Exception as e:
-            logger.error(f"Failed to initialize BME680: {e}")
-            self.sensor = None
+        addresses = [self.i2c_address]
+        # Try both common addresses
+        other_address = 0x76 if self.i2c_address == 0x77 else 0x77
+        addresses.append(other_address)
+        
+        for addr in addresses:
+            try:
+                logger.info(f"Attempting to initialize BME680 at 0x{addr:02x}...")
+                self.sensor = bme680.BME680(addr)
+                
+                # Configure oversampling
+                self.sensor.set_humidity_oversample(bme680.OS_2X)
+                self.sensor.set_pressure_oversample(bme680.OS_4X)
+                self.sensor.set_temperature_oversample(bme680.OS_8X)
+                self.sensor.set_filter(bme680.FILTER_SIZE_3)
+                
+                # Configure gas sensor if enabled
+                if self.enable_gas:
+                    self.sensor.set_gas_status(bme680.ENABLE_GAS_MEAS)
+                    self.sensor.set_gas_heater_temperature(320)  # °C
+                    self.sensor.set_gas_heater_duration(150)  # ms
+                    self.sensor.select_gas_heater_profile(0)
+                
+                self.i2c_address = addr
+                logger.info(f"BME680 sensor initialized successfully at 0x{addr:02x}")
+                return
+            except Exception as e:
+                logger.warning(f"Failed to initialize BME680 at 0x{addr:02x}: {e}")
+                
+        logger.error("Could not find BME680 sensor at either 0x76 or 0x77")
+        self.sensor = None
     
     def read(self) -> Dict[str, Optional[float]]:
         """
