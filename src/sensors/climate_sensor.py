@@ -118,6 +118,33 @@ class ClimateSensor(BaseSensor):
             logger.error(f"Error reading BME680: {e}")
             return self._simulate_reading()
 
+    def _calculate_vpd(self, temperature: float, humidity: float) -> float:
+        """
+        Calculate Vapor Pressure Deficit (VPD) in kPa.
+        
+        VPD = SVP * (1 - RH/100)
+        where SVP = 0.6108 * exp(17.27 * T / (T + 237.3))
+        
+        Args:
+            temperature: Temperature in °C
+            humidity: Relative humidity in %
+            
+        Returns:
+            VPD in kPa
+        """
+        import math
+        
+        # Saturation vapor pressure (kPa)
+        svp = 0.6108 * math.exp(17.27 * temperature / (temperature + 237.3))
+        
+        # Actual vapor pressure (kPa)
+        avp = svp * (humidity / 100.0)
+        
+        # Vapor pressure deficit (kPa)
+        vpd = svp - avp
+        
+        return max(0.0, vpd)
+
     def _simulate_reading(self) -> Dict[str, float]:
         """Generate simulated climate data."""
         import random
