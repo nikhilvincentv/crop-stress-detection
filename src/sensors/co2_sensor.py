@@ -9,10 +9,11 @@ from .base_sensor import BaseSensor
 
 try:
     import mh_z19
+    import serial
     SENSOR_AVAILABLE = True
 except ImportError:
     SENSOR_AVAILABLE = False
-    logging.warning("mh_z19 library not available. Using simulation mode.")
+    logging.warning("mh_z19/pyserial libraries not available. Using simulation mode.")
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,13 @@ class CO2Sensor(BaseSensor):
             try:
                 import serial
                 # Test if serial port works
-                ser = serial.Serial('/dev/serial0', 9600, timeout=1)
+                self.baud_rate = config.get('baud_rate', 9600)
+                ser = serial.Serial('/dev/serial0', self.baud_rate, timeout=1)
+                
+                # Send wake-up command (some sensors need this)
+                wake_cmd = b'\xff\x01\x79\xa0\x00\x00\x00\x00\xe6'
+                ser.write(wake_cmd)
+                time.sleep(0.1)
                 ser.close()
                 
                 # Now test mh_z19
@@ -50,8 +57,14 @@ class CO2Sensor(BaseSensor):
                 if test_result and 'co2' in test_result:
                     logger.info(f"CO2 hardware works: {test_result['co2']} ppm")
                 else:
-                    self.simulation = True
-                    logger.warning("mh_z19 returned empty or invalid data. Using simulation.")
+                    # Try manual read if library fails
+                    logger.warning("mh_z19 library returned empty data, trying manual serial read...")
+                    manual_data = self._read_manual()
+                    if manual_data.get('co2_ppm') is not None:
+                        logger.info(f"Manual CO2 hardware read works: {manual_data['co2_ppm']} ppm")
+                    else:
+                        self.simulation = True
+                        logger.warning("CO2 hardware returned empty or invalid data. Using simulation.")
                     
             except Exception as e:
                 self.simulation = True
@@ -76,17 +89,35 @@ class CO2Sensor(BaseSensor):
         try:
             import mh_z19
             data = mh_z19.read()
-            co2_ppm = data.get('co2', None)
-            return {'co2_ppm': co2_ppm}
-        except PermissionError:
-            logger.error("Permission denied to /dev/serial0. Try: sudo usermod -a -G dialout $USER && sudo chmod 666 /dev/serial0")
-            return {'co2_ppm': None}
-        except Exception as e:
-            if "Permission denied" in str(e):
-                logger.error("Permission denied to /dev/serial0. Try: sudo usermod -a -G dialout $USER && sudo chmod 666 /dev/serial0")
+            if data and 'co2' in data:
+                return {'co2_ppm': float(data['co2']), 'baseline_co2': self.baseline_co2}
             else:
-                logger.error(f"Error reading CO2 sensor: {e}")
-            return {'co2_ppm': None}
+                # Fallback to manual serial read if library fails
+                return self._read_manual()
+        except Exception as e:
+            logger.error(f"Error reading CO2 sensor via library: {e}")
+            return self._read_manual()
+
+    def _read_manual(self) -> dict:
+        """Read CO2 concentration directly from serial if library fails."""
+        try:
+            import serial
+            with serial.Serial('/dev/serial0', getattr(self, 'baud_rate', 9600), timeout=2.0) as ser:
+                ser.flushInput()
+                read_cmd = b'\xff\x01\x86\x00\x00\x00\x00\x00\x79'
+                ser.write(read_cmd)
+                time.sleep(0.5)
+                response = ser.read(9)
+                
+                if len(response) >= 9:
+                    co2 = response[2] * 256 + response[3]
+                    return {'co2_ppm': float(co2), 'baseline_co2': self.baseline_co2}
+                else:
+                    logger.warning(f"CO2 manual read short response: {response.hex()}")
+                    return {'co2_ppm': None, 'baseline_co2': self.baseline_co2}
+        except Exception as e:
+            logger.error(f"Manual CO2 read failure: {e}")
+            return {'co2_ppm': None, 'baseline_co2': self.baseline_co2}
     
     def measure_respiration(self) -> dict:
         """

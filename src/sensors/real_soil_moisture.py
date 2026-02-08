@@ -24,6 +24,7 @@ class RealSoilMoistureSensor(BaseSensor):
         super().__init__("Real_Soil_Moisture", config)
         config = config or {}
         self.simulation = config.get('simulation', not REAL_SENSOR_AVAILABLE)
+        self.i2c_address = config.get('i2c_address', 0x48)
         self.adc_channel = config.get('adc_channel', 0)  # A0
         self.dry_value = config.get('dry_value', 25000)  # ADC value when dry
         self.wet_value = config.get('wet_value', 10000)  # ADC value when wet
@@ -41,7 +42,7 @@ class RealSoilMoistureSensor(BaseSensor):
             i2c = busio.I2C(board.SCL, board.SDA)
             
             # Create ADC object
-            ads = ADS.ADS1015(i2c)
+            ads = ADS.ADS1015(i2c, address=self.i2c_address)
             
             # Create single-ended input on channel
             if self.adc_channel == 0:
