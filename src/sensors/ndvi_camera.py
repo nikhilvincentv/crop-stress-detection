@@ -40,7 +40,9 @@ class NDVICamera(BaseSensor):
         self.resolution = config.get('resolution', (1920, 1080))
         self.save_path = Path(config.get('save_path', './data/images'))
         self.blue_filter = config.get('blue_filter', True)
+        self.simulation = config.get('simulation', False)
         self.camera = None
+        self.camera_available = False
         
         # Create save directory
         self.save_path.mkdir(parents=True, exist_ok=True)
@@ -49,32 +51,50 @@ class NDVICamera(BaseSensor):
             self._initialize_camera()
     
     def _initialize_camera(self):
-        """Initialize the Pi NoIR camera."""
+        """Initialize the Pi NoIR camera using robust Pi 5 compatible methods."""
+        if self.simulation:
+            logger.info("Simulation mode forced, skipping hardware camera init")
+            return
+
         try:
+            from picamera2 import Picamera2
             self.camera = Picamera2()
             
-            # Check for available cameras
-            cameras = self.camera.available_cameras
-            if not cameras:
-                logger.error("No cameras detected by libcamera")
-                self.camera = None
-                return
+            # List available camera configurations
+            try:
+                camera_info = self.camera.global_camera_info()
+                logger.info(f"Available cameras: {camera_info}")
+                
+                # Try to create a preview or still configuration
+                # create_preview_configuration is often more reliable for initial check
+                config = self.camera.create_preview_configuration()
+                self.camera.configure(config)
+                
+                logger.info("Camera configured successfully with preview config")
+                self.camera_available = True
+            except Exception as e:
+                logger.warning(f"Standard camera config failed: {e}. Trying still config...")
+                try:
+                    config = self.camera.create_still_configuration(
+                        main={"size": self.resolution}
+                    )
+                    self.camera.configure(config)
+                    logger.info("Camera configured with still config")
+                    self.camera_available = True
+                except Exception as e2:
+                    logger.error(f"Still config also failed: {e2}")
+                    raise
             
-            logger.info(f"Found {len(cameras)} camera(s): {cameras}")
-            
-            config = self.camera.create_still_configuration(
-                main={"size": self.resolution}
-            )
-            self.camera.configure(config)
-            self.camera.start()
-            time.sleep(2)  # Allow camera to warm up
-            logger.info("Pi NoIR camera initialized successfully")
-        except IndexError:
-            logger.error("Failed to initialize camera: No camera found (IndexError)")
-            self.camera = None
+            if self.camera_available:
+                self.camera.start()
+                time.sleep(2)  # Allow camera to warm up
+                logger.info("Pi NoIR camera started successfully")
+                
         except Exception as e:
             logger.error(f"Failed to initialize camera: {e}")
+            logger.warning("Falling back to simulation mode")
             self.camera = None
+            self.simulation = True
     
     def read(self) -> Dict:
         """
