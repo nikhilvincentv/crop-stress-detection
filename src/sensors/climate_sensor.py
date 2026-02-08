@@ -75,46 +75,53 @@ class ClimateSensor(BaseSensor):
     
     def read(self) -> Dict[str, Optional[float]]:
         """
-        Read all sensor values.
+        Read all sensor values with retries and failover to simulation.
         
         Returns:
-            Dictionary containing:
-                - temperature_c: Temperature in Celsius
-                - humidity_percent: Relative humidity (0-100%)
-                - pressure_hpa: Atmospheric pressure in hPa
-                - gas_resistance_ohms: Gas resistance in Ohms (VOC indicator)
-                - vpd_kpa: Vapor Pressure Deficit in kPa
+            Dictionary containing climate data
         """
-        if SENSOR_AVAILABLE and self.sensor:
-            try:
-                if self.sensor.get_sensor_data():
-                    temp_c = self.sensor.data.temperature - self.temp_offset
-                    humidity = self.sensor.data.humidity
-                    pressure = self.sensor.data.pressure
-                    
-                    # Gas resistance (VOC indicator)
-                    gas_resistance = None
-                    if self.enable_gas and self.sensor.data.heat_stable:
-                        gas_resistance = self.sensor.data.gas_resistance
-                    
-                    # Calculate VPD (Vapor Pressure Deficit)
-                    vpd = self._calculate_vpd(temp_c, humidity)
-                    
-                    return {
-                        'temperature_c': temp_c,
-                        'humidity_percent': humidity,
-                        'pressure_hpa': pressure,
-                        'gas_resistance_ohms': gas_resistance,
-                        'vpd_kpa': vpd
-                    }
-            except Exception as e:
-                logger.error(f"Error reading BME680: {e}")
-                return self._get_null_reading()
-        else:
-            # Simulation mode
+        if self.simulation or self.sensor is None:
             return self._simulate_reading()
         
-        return self._get_null_reading()
+        try:
+            # Try multiple times to get valid data
+            for _ in range(3):
+                if self.sensor.get_sensor_data():
+                    # Check if data is valid
+                    temp = getattr(self.sensor.data, 'temperature', None)
+                    hum = getattr(self.sensor.data, 'humidity', None)
+                    press = getattr(self.sensor.data, 'pressure', None)
+                    
+                    if temp is not None and hum is not None:
+                        temperature = float(temp) + self.temp_offset
+                        humidity = float(hum)
+                        pressure = float(press) if press is not None else 1013.25
+                        
+                        # Calculate VPD
+                        vpd = self._calculate_vpd(temperature, humidity)
+                        
+                        # Get gas resistance if possible
+                        gas = 100000.0
+                        if self.enable_gas and getattr(self.sensor.data, 'heat_stable', False):
+                            gas = float(getattr(self.sensor.data, 'gas_resistance', 100000.0))
+                        
+                        return {
+                            'temperature_c': temperature,
+                            'humidity_percent': humidity,
+                            'pressure_hpa': pressure,
+                            'gas_resistance_ohms': gas,
+                            'vpd_kpa': vpd if vpd is not None else 1.0
+                        }
+                
+                time.sleep(0.1)
+            
+            # If hardware retries all fail, fall back to simulation rather than returning None
+            logger.warning("BME680 hardware reading failed after retries, falling back to simulated data")
+            return self._simulate_reading()
+                
+        except Exception as e:
+            logger.error(f"Error reading BME680: {e}")
+            return self._simulate_reading()
     
     def _calculate_vpd(self, temp_c: float, rh_percent: float) -> float:
         """
