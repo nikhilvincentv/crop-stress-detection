@@ -29,7 +29,8 @@ class ClimateSensor(BaseSensor):
                 - enable_gas: Enable gas/VOC measurements (default: True)
         """
         super().__init__("BME680_Climate", config)
-        self.i2c_address = config.get('i2c_address', 0x77)
+        # 0x77 is the address detected on the user's Pi
+        self.i2c_address = config.get('i2c_address', 0x77) 
         self.temp_offset = config.get('temp_offset', 0)
         self.enable_gas = config.get('enable_gas', True)
         self.sensor = None
@@ -39,10 +40,11 @@ class ClimateSensor(BaseSensor):
     
     def _initialize_sensor(self):
         """Initialize the BME680 sensor with proper settings."""
-        addresses = [self.i2c_address]
-        # Try both common addresses
-        other_address = 0x76 if self.i2c_address == 0x77 else 0x77
-        addresses.append(other_address)
+        # Use I2C_ADDR_SECONDARY (0x77) as primary choice since it was detected
+        primary_addr = bme680.I2C_ADDR_SECONDARY # 0x77
+        secondary_addr = bme680.I2C_ADDR_PRIMARY # 0x76
+        
+        addresses = [primary_addr, secondary_addr]
         
         for addr in addresses:
             try:
