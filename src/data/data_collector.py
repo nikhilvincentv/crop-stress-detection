@@ -14,7 +14,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from sensors.co2_sensor import CO2Sensor
 from sensors.climate_sensor import ClimateSensor
 from sensors.ndvi_camera import NDVICamera
-from sensors.soil_moisture_sensor import SoilMoistureSensor
+from sensors.real_soil_moisture import RealSoilMoistureSensor
 from data.data_logger import DataLogger
 
 logger = logging.getLogger(__name__)
@@ -53,10 +53,12 @@ class DataCollector:
         """Initialize all hardware sensors."""
         logger.info("Initializing sensors...")
         
-        # Add SoilMoistureSensor here!
-        self.soil_sensor = SoilMoistureSensor({
-            'simulation': not self.hardware_mode,  # True in hardware mode for now
-            # Add your soil sensor config here
+        # Add RealSoilMoistureSensor here!
+        self.soil_sensor = RealSoilMoistureSensor({
+            'simulation': not self.hardware_mode,
+            'adc_channel': 0,
+            'dry_value': 25000,
+            'wet_value': 10000
         })
         
         self.co2_sensor = CO2Sensor({
