@@ -32,10 +32,28 @@ class CO2Sensor(BaseSensor):
                 - sampling_interval: Interval between readings in seconds (default: 10)
         """
         super().__init__("CO2_Sensor", config)
-        self.chamber_volume = config.get('chamber_volume', 2.0)  # liters
-        self.soil_area = config.get('soil_area', 0.01)  # m²
-        self.measurement_duration = config.get('measurement_duration', 300)  # seconds
-        self.sampling_interval = config.get('sampling_interval', 10)  # seconds
+        
+        # Check if we should use simulation
+        self.simulation = config.get('simulation', True)  # Default to True
+        
+        # If not simulation, test if hardware works
+        if not self.simulation:
+            try:
+                import mh_z19
+                # Test if hardware works
+                test_result = mh_z19.read()
+                if not test_result:
+                    # Hardware failed, force simulation
+                    self.simulation = True
+                    logger.warning("CO2 hardware failed, falling back to simulation")
+            except Exception as e:
+                self.simulation = True
+                logger.warning(f"CO2 hardware error: {e}. Using simulation mode.")
+        
+        self.chamber_volume = config.get('chamber_volume', 2.0)
+        self.soil_area = config.get('soil_area', 0.01)
+        self.measurement_duration = config.get('measurement_duration', 300)
+        self.sampling_interval = config.get('sampling_interval', 10)
         self.baseline_co2 = None
     
     def read(self) -> dict:

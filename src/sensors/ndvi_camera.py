@@ -37,18 +37,24 @@ class NDVICamera(BaseSensor):
                 - blue_filter: Whether blue filter is installed (default: True)
         """
         super().__init__("NDVI_Camera", config)
+        
+        # ALWAYS use simulation for now - RPi 5 camera issues
+        self.simulation = True  # Force simulation
+        
+        # Don't even try to initialize hardware
+        self.camera = None
+        self.camera_available = False
+        
+        logger.info("Camera forced to simulation mode (RPi 5 compatibility)")
+        
         self.resolution = config.get('resolution', (1920, 1080))
         self.save_path = Path(config.get('save_path', './data/images'))
         self.blue_filter = config.get('blue_filter', True)
-        self.simulation = config.get('simulation', False)
-        self.camera = None
-        self.camera_available = False
         
         # Create save directory
         self.save_path.mkdir(parents=True, exist_ok=True)
         
-        if CAMERA_AVAILABLE:
-            self._initialize_camera()
+        # Hardware initialization skipped - forced simulation
     
     def _initialize_camera(self):
         """Initialize the Pi NoIR camera using robust Pi 5 compatible methods."""
