@@ -163,12 +163,12 @@ class CO2Sensor(BaseSensor):
         return flux, r_squared, slope
     
     def calibrate(self) -> bool:
-        """
-        Calibrate sensor by measuring baseline CO2.
-        
-        Returns:
-            True if calibration successful
-        """
+        """Calibrate CO2 sensor by measuring baseline CO2."""
+        if self.simulation:
+            logger.info("Simulation mode: calibration skipped")
+            self.baseline_co2 = 400  # Set a simulated baseline
+            return True
+            
         logger.info("Calibrating CO2 sensor...")
         readings = []
         
