@@ -39,13 +39,20 @@ class CO2Sensor(BaseSensor):
         # If not simulation, test if hardware works
         if not self.simulation:
             try:
+                import serial
+                # Test if serial port works
+                ser = serial.Serial('/dev/serial0', 9600, timeout=1)
+                ser.close()
+                
+                # Now test mh_z19
                 import mh_z19
-                # Test if hardware works
                 test_result = mh_z19.read()
-                if not test_result:
-                    # Hardware failed, force simulation
+                if test_result and 'co2' in test_result:
+                    logger.info(f"CO2 hardware works: {test_result['co2']} ppm")
+                else:
                     self.simulation = True
-                    logger.warning("CO2 hardware failed, falling back to simulation")
+                    logger.warning("mh_z19 returned empty or invalid data. Using simulation.")
+                    
             except Exception as e:
                 self.simulation = True
                 logger.warning(f"CO2 hardware error: {e}. Using simulation mode.")
