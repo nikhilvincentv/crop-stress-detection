@@ -57,31 +57,29 @@ class CO2Sensor(BaseSensor):
         self.baseline_co2 = None
     
     def read(self) -> dict:
-        """
-        Read current CO2 concentration.
-        
-        Returns:
-            Dictionary with CO2 concentration in ppm
-        """
-        if SENSOR_AVAILABLE:
-            try:
-                data = mh_z19.read()
-                co2_ppm = data.get('co2', None)
-                return {'co2_ppm': co2_ppm}
-            except PermissionError:
-                logger.error("Permission denied to /dev/serial0. Try: sudo usermod -a -G dialout $USER && sudo chmod 666 /dev/serial0")
-                return {'co2_ppm': None}
-            except Exception as e:
-                if "Permission denied" in str(e):
-                    logger.error("Permission denied to /dev/serial0. Try: sudo usermod -a -G dialout $USER && sudo chmod 666 /dev/serial0")
-                else:
-                    logger.error(f"Error reading CO2 sensor: {e}")
-                return {'co2_ppm': None}
-        else:
-            # Simulation mode
+        """Read current CO2 concentration."""
+        if self.simulation:
+            # Return simulated data
             import random
-            co2_ppm = 400 + random.uniform(-20, 100)
+            return {
+                'co2_ppm': 400 + random.uniform(-20, 20),
+                'baseline_co2': self.baseline_co2
+            }
+            
+        try:
+            import mh_z19
+            data = mh_z19.read()
+            co2_ppm = data.get('co2', None)
             return {'co2_ppm': co2_ppm}
+        except PermissionError:
+            logger.error("Permission denied to /dev/serial0. Try: sudo usermod -a -G dialout $USER && sudo chmod 666 /dev/serial0")
+            return {'co2_ppm': None}
+        except Exception as e:
+            if "Permission denied" in str(e):
+                logger.error("Permission denied to /dev/serial0. Try: sudo usermod -a -G dialout $USER && sudo chmod 666 /dev/serial0")
+            else:
+                logger.error(f"Error reading CO2 sensor: {e}")
+            return {'co2_ppm': None}
     
     def measure_respiration(self) -> dict:
         """
