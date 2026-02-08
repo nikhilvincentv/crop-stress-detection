@@ -74,17 +74,12 @@ class ClimateSensor(BaseSensor):
         self.sensor = None
     
     def read(self) -> Dict[str, Optional[float]]:
-        """
-        Read all sensor values with retries and failover to simulation.
-        
-        Returns:
-            Dictionary containing climate data
-        """
+        """Read current climate data from BME680."""
         if self.simulation or self.sensor is None:
             return self._simulate_reading()
         
         try:
-            # Try multiple times to get valid data
+            # Try multiple times to read
             for _ in range(3):
                 if self.sensor.get_sensor_data():
                     # Check if data is valid
@@ -106,61 +101,43 @@ class ClimateSensor(BaseSensor):
                             gas = float(getattr(self.sensor.data, 'gas_resistance', 100000.0))
                         
                         return {
-                            'temperature_c': temperature,
-                            'humidity_percent': humidity,
-                            'pressure_hpa': pressure,
-                            'gas_resistance_ohms': gas,
-                            'vpd_kpa': vpd if vpd is not None else 1.0
+                            'temperature_c': float(temperature),
+                            'humidity_percent': float(humidity),
+                            'pressure_hpa': float(pressure),
+                            'gas_resistance_ohms': float(gas),
+                            'vpd_kpa': float(vpd) if vpd is not None else 1.0
                         }
-                
                 time.sleep(0.1)
             
-            # If hardware retries all fail, fall back to simulation rather than returning None
+            # If hardware retries all fail, fall back to simulation
             logger.warning("BME680 hardware reading failed after retries, falling back to simulated data")
             return self._simulate_reading()
                 
         except Exception as e:
             logger.error(f"Error reading BME680: {e}")
             return self._simulate_reading()
-    
-    def _calculate_vpd(self, temp_c: float, rh_percent: float) -> float:
-        """
-        Calculate Vapor Pressure Deficit.
-        
-        Args:
-            temp_c: Temperature in Celsius
-            rh_percent: Relative humidity (0-100%)
-        
-        Returns:
-            VPD in kPa
-        """
-        # Saturation vapor pressure (kPa) using Magnus formula
-        svp = 0.6108 * (2.71828 ** ((17.27 * temp_c) / (temp_c + 237.3)))
-        
-        # Actual vapor pressure
-        avp = svp * (rh_percent / 100.0)
-        
-        # VPD
-        vpd = svp - avp
-        
-        return vpd
-    
-    def _simulate_reading(self) -> Dict[str, Optional[float]]:
-        """Generate simulated sensor readings for testing."""
+
+    def _simulate_reading(self) -> Dict[str, float]:
+        """Generate simulated climate data."""
         import random
+        import time
         
-        temp_c = 20 + random.uniform(-5, 10)
-        humidity = 50 + random.uniform(-20, 30)
-        pressure = 1013 + random.uniform(-10, 10)
-        gas_resistance = 50000 + random.uniform(-20000, 100000)
-        vpd = self._calculate_vpd(temp_c, humidity)
+        # Use current time to make data change slowly
+        t = time.time()
+        
+        # Simulate realistic data
+        temperature = 20.0 + 5.0 * (0.5 + 0.5 * (t % 100) / 100)
+        humidity = 45.0 + 10.0 * (0.5 + 0.5 * ((t + 50) % 100) / 100)
+        pressure = 1013.25 + random.uniform(-5, 5)
+        
+        vpd = self._calculate_vpd(temperature, humidity)
         
         return {
-            'temperature_c': temp_c,
-            'humidity_percent': humidity,
-            'pressure_hpa': pressure,
-            'gas_resistance_ohms': gas_resistance,
-            'vpd_kpa': vpd
+            'temperature_c': float(temperature),
+            'humidity_percent': float(humidity),
+            'pressure_hpa': float(pressure),
+            'gas_resistance_ohms': float(100000.0 + random.uniform(-10000, 10000)),
+            'vpd_kpa': float(vpd) if vpd is not None else 1.0
         }
     
     def _get_null_reading(self) -> Dict[str, None]:

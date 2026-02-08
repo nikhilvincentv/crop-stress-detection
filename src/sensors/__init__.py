@@ -1,13 +1,11 @@
-"""Sensor modules for crop stress monitoring."""
-
-from .base_sensor import BaseSensor
-from .co2_sensor import CO2Sensor
+from .soil_moisture_sensor import SoilMoistureSensor
 from .climate_sensor import ClimateSensor
+from .co2_sensor import CO2Sensor
 from .ndvi_camera import NDVICamera
 
 __all__ = [
-    'BaseSensor',
-    'CO2Sensor',
+    'SoilMoistureSensor',
     'ClimateSensor',
+    'CO2Sensor', 
     'NDVICamera'
 ]
