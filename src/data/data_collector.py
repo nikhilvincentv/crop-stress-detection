@@ -14,6 +14,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from sensors.co2_sensor import CO2Sensor
 from sensors.climate_sensor import ClimateSensor
 from sensors.ndvi_camera import NDVICamera
+from sensors.soil_moisture_sensor import SoilMoistureSensor
 from data.data_logger import DataLogger
 
 logger = logging.getLogger(__name__)
@@ -30,12 +31,10 @@ class DataCollector:
             config: Configuration dictionary with sensor and logging settings
         """
         self.config = config or {}
+        self.hardware_mode = config.get('hardware_mode', False)
         
         # Initialize sensors
-        logger.info("Initializing sensors...")
-        self.co2_sensor = CO2Sensor(config.get('co2_sensor', {}))
-        self.climate_sensor = ClimateSensor(config.get('climate_sensor', {}))
-        self.ndvi_camera = NDVICamera(config.get('ndvi_camera', {}))
+        self.initialize_sensors()
         
         # Initialize data logger
         self.data_logger = DataLogger(config.get('data_logger', {}))
@@ -49,6 +48,34 @@ class DataCollector:
         self.measurement_count = 0
         
         logger.info("Data collector initialized")
+
+    def initialize_sensors(self):
+        """Initialize all hardware sensors."""
+        logger.info("Initializing sensors...")
+        
+        # Add SoilMoistureSensor here!
+        self.soil_sensor = SoilMoistureSensor({
+            'simulation': not self.hardware_mode,  # True in hardware mode for now
+            # Add your soil sensor config here
+        })
+        
+        self.co2_sensor = CO2Sensor({
+            'simulation': not self.hardware_mode,
+            'chamber_volume': 2.0,
+            'soil_area': 0.01
+        })
+        
+        self.climate_sensor = ClimateSensor({
+            'simulation': not self.hardware_mode,
+            'i2c_address': 0x77,
+            'enable_gas': True
+        })
+        
+        self.ndvi_camera = NDVICamera({
+            'simulation': True  # Always simulation for now
+        })
+        
+        logger.info("All sensors initialized")
     
     def calibrate_all_sensors(self) -> bool:
         """
@@ -62,7 +89,8 @@ class DataCollector:
         results = {
             'co2': self.co2_sensor.calibrate(),
             'climate': self.climate_sensor.calibrate(),
-            'camera': self.ndvi_camera.calibrate()
+            'camera': self.ndvi_camera.calibrate(),
+            'soil': self.soil_sensor.calibrate()
         }
         
         success = all(results.values())
@@ -103,6 +131,7 @@ class DataCollector:
             'measurement_id': self.measurement_count,
             'climate': climate_data,
             'co2': co2_data,
+            'soil': self.soil_sensor.read(),
             'ndvi': ndvi_data
         }
         
@@ -135,6 +164,7 @@ class DataCollector:
             'timestamp': timestamp,
             'measurement_type': 'respiration',
             'climate': climate_data,
+            'soil': self.soil_sensor.read(),
             'respiration': respiration_data
         }
         
@@ -240,6 +270,21 @@ class DataCollector:
         self.is_running = False
         self.data_logger.close()
         logger.info(f"Total measurements collected: {self.measurement_count}")
+    
+    def get_latest_readings(self) -> Dict:
+        """Get the latest readings from all sensors for advice generation."""
+        climate = self.climate_sensor.read()
+        co2 = self.co2_sensor.read()
+        soil = self.soil_sensor.read()
+        ndvi = self.ndvi_camera.read()
+        
+        return {
+            'temperature': climate.get('temperature_c'),
+            'humidity': climate.get('humidity_percent'),
+            'co2': co2.get('co2_ppm'),
+            'soil_moisture': soil.get('soil_moisture_percent'),
+            'ndvi': ndvi.get('ndvi_mean')
+        }
     
     def get_summary_statistics(self) -> Dict:
         """

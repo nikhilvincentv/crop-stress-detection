@@ -218,6 +218,7 @@ def run_hardware_mode():
     }
     
     # Initialize data collector
+    config['hardware_mode'] = True
     collector = DataCollector(config)
     
     # Calibrate sensors
