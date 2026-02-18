@@ -1,1 +1,10 @@
-numpy==1.24.3\nopencv-python-headless==4.7.0\ntensorflow-aarch64==2.13.0
+numpy==1.25.0
+opencv-python-headless==4.7.0.72
+bme680
+mh-z19
+pyserial
+Pillow
+pandas
+scikit-learn
+matplotlib
+seaborn
