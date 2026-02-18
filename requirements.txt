@@ -8,3 +8,5 @@ pandas
 scikit-learn
 matplotlib
 seaborn
+adafruit-circuitpython-ads1x15
+adafruit-circuitpython-busdevice
