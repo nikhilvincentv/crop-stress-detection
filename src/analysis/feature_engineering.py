@@ -446,3 +446,27 @@ class FeatureEngineer:
         logger.info(f"Prediction horizon: {prediction_horizon} time steps")
         
         return X, y
+    def create_sequences(self, X: pd.DataFrame, y: pd.Series, window_size: int = 24) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Create 3D sequences [Batch, TimeSteps, Features] for LSTM training.
+        
+        Args:
+            X: Feature DataFrame (scaled)
+            y: Target Series
+            window_size: Number of time steps in each sequence
+            
+        Returns:
+            Tuple of (X_sequences, y_targets)
+        """
+        X_data = X.values
+        y_data = y.values
+        
+        X_sequences = []
+        y_targets = []
+        
+        for i in range(len(X_data) - window_size + 1):
+            X_sequences.append(X_data[i:i + window_size])
+            # Target is the value AT the end of the window (or shift for future)
+            y_targets.append(y_data[i + window_size - 1])
+            
+        return np.array(X_sequences), np.array(y_targets)

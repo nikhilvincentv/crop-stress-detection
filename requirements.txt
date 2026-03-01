@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 numpy
 opencv-python-headless
 bme680
@@ -10,3 +11,19 @@ matplotlib
 seaborn
 adafruit-circuitpython-ads1x15
 adafruit-circuitpython-busdevice
+=======
+numpy==1.24.3
+pandas==2.0.3
+scikit-learn==1.2.2
+matplotlib==3.7.1
+seaborn==0.12.2
+joblib==1.2.0
+torch==2.0.1
+torchvision==0.15.2
+opencv-python-headless==4.7.0
+RPi.GPIO
+spidev
+bme680
+pyserial
+PyYAML
+>>>>>>> 5e2ebd7 (Transition to PyTorch LSTM model, updated feature engineering for sequences, and prepared requirements for Pi sensors)
