@@ -1,0 +1,11 @@
+{
+  "source": "NASA SRDB Ecosystem_type==Agriculture, Rs_annual (gC m-2 yr-1)",
+  "n": 1136,
+  "mean": 805.7493076232395,
+  "std": 648.8909798301023,
+  "q25": 411.5,
+  "median": 639.4100000000001,
+  "q75": 978.4000000000001,
+  "min": -200.0,
+  "max": 5727.27
+}

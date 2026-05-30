@@ -1,0 +1,26 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Large datasets (regenerate via scripts/download_datasets.py)
+data/plantvillage/
+data/crop_recommendation/
+data/srdb/
+data/cosore/
+data/cook_farm/
+data/rice/
+data/wheat/
+
+# Large processed artifacts (regenerate via scripts/prepare_rf_data.py)
+data/processed/cosore_co2_features.csv
+data/processed/cook_farm_moisture.csv
+data/processed/rf_training_data.csv
+
+# Large regenerable model binaries (rebuild via scripts/, or scp to the Pi)
+models/rf_multispecies.pkl
+models/agridefend_multispecies.tflite
+models/cnn_multispecies.h5
+
+# Logs
+*.log
