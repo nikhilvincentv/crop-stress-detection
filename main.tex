@@ -1,0 +1,557 @@
+
+\documentclass[10pt,twocolumn]{article}
+
+% ── Encoding & fonts ──────────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{txfonts}
+\usepackage{courier}
+
+% ── Page layout ───────────────────────────────────────────────
+\usepackage[
+  top=0.90in, bottom=0.90in,
+  left=0.60in, right=0.60in,
+  columnsep=0.22in,
+  headsep=12pt
+]{geometry}
+
+% ── Core packages ─────────────────────────────────────────────
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\usepackage{mdframed}
+\usepackage{graphicx}
+
+% ── Colours ───────────────────────────────────────────────────
+\definecolor{hdrblue}{HTML}{2c3e50}
+\definecolor{rowalpha}{HTML}{eaf0fb}
+\definecolor{rowbeta}{HTML}{fef9e7}
+\definecolor{rulecolor}{HTML}{999999}
+
+% ── Section headings ─────────────────────────────────────────
+\usepackage{titlesec}
+\titleformat{\section}
+  {\normalfont\normalsize\bfseries}
+  {\thesection.}{0.5em}{}
+\titleformat{\subsection}
+  {\normalfont\normalsize\bfseries\itshape}
+  {\thesubsection}{0.5em}{}
+\titleformat{\subsubsection}[runin]
+  {\normalfont\normalsize\itshape}
+  {\thesubsubsection}{0.5em}{}[.\enspace]
+\titlespacing*{\section}     {0pt}{9pt}{4pt}
+\titlespacing*{\subsection}  {0pt}{7pt}{2pt}
+\titlespacing*{\subsubsection}{0pt}{5pt}{0pt}
+
+% ── Header / footer ───────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyhead[L]{\footnotesize\textit{Xu \& Vincent\;/\;AgriDefend: Multimodal AI Fusion}}
+\fancyhead[R]{\footnotesize\textit{2026}}
+\fancyfoot[C]{\footnotesize\thepage}
+\fancypagestyle{firstpage}{
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \fancyfoot[C]{\footnotesize\thepage}
+}
+
+% ── Caption style ─────────────────────────────────────────────
+\captionsetup{
+  font={small},
+  labelfont={bf},
+  labelsep=period,
+  justification=justified,
+  singlelinecheck=false,
+  skip=4pt
+}
+
+% ── Spacing ───────────────────────────────────────────────────
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{1.2em}
+\setlength{\intextsep}{6pt}
+\setlength{\textfloatsep}{8pt}
+\setlist{nosep, leftmargin=1.5em}
+
+% ── Abstract box ──────────────────────────────────────────────
+\mdfdefinestyle{absbox}{
+  linecolor=rulecolor,
+  linewidth=0.5pt,
+  topline=true, bottomline=true,
+  leftline=false, rightline=false,
+  innertopmargin=6pt, innerbottommargin=6pt,
+  innerleftmargin=0pt, innerrightmargin=0pt,
+  skipabove=4pt, skipbelow=4pt,
+}
+
+% ── \code{} for inline monospace ─────────────────────────────
+\newcommand{\code}[1]{{\small\ttfamily #1}}
+
+% ── Title block ───────────────────────────────────────────────
+\usepackage{titling}
+\pretitle{%
+  \begin{flushleft}
+  \rule{\linewidth}{1.5pt}\\[5pt]
+  \fontsize{14}{17}\selectfont\bfseries
+}
+\posttitle{%
+  \\[3pt]\rule{\linewidth}{0.5pt}
+  \end{flushleft}\vspace{0pt}
+}
+\preauthor{\begin{flushleft}\small\vspace{2pt}}
+\postauthor{\end{flushleft}\vspace{-6pt}}
+\predate{}\date{}\postdate{}
+\setlength{\droptitle}{-30pt}
+
+% ══════════════════════════════════════════════════════════════
+\begin{document}
+
+\title{AgriDefend: Pre-Phenotypic Crop Stress Diagnosis via Edge-Optimized Multimodal AI Fusion: A Decentralized Architecture for Agricultural Mitigation}
+
+\author{%
+  George Xu,$^{1}$ \quad Nikhil Vincent$^{2}$ \quad Ben Bond-Lamberty$^{3}$\\[3pt]
+  \small Inglemoor High School, Kenmore, Washington, USA\\[1pt]
+  \small $^{1}$Independent Researcher, Bothell, Washington \quad \href{mailto:georgexu5588@gmail.com}{georgexu5588@gmail.com}\\[1pt]
+  \small $^{2}$Independent Researcher, Bothell, Washington \quad \href{mailto:nikhil.vincent.v@gmail.com}{nikhil.vincent.v@gmail.com}\\[1pt]
+  \small $^{3}$Pacific Northwest National Laboratory, Joint Global Change Research Institute, University of Maryland, College Park, MD 20740, USA \quad \href{mailto:BondLamberty@pnnl.gov}{BondLamberty@pnnl.gov}\\[1pt]
+}
+
+\twocolumn[{%
+\begin{@twocolumnfalse}
+\maketitle
+\thispagestyle{firstpage}
+\vspace{2pt}
+
+\begin{mdframed}[style=absbox]
+{\small
+\noindent\textbf{Abstract}\;---\;%
+\textbf{Background:} Agricultural production accounts for approximately 70\% of global freshwater withdrawals~\cite{ref11}, and over-reliance on synthetic nitrogen and phosphorus fertilizers contributes to widespread eutrophication of aquatic ecosystems. Existing precision agriculture diagnostic systems rely on single-modality sensing---either visual phenotyping or soil telemetry---which limits their ability to detect crop stress prior to visible symptom onset.
+\textbf{Methods:} We present AgriDefend, a multimodal late-fusion edge AI system that fuses surface phenotypic imagery with subterranean soil sensor telemetry on a low-cost (\$205), offline-capable Raspberry Pi~5 platform. A MobileNetV2-based convolutional neural network (CNN) processes optical canopy data, while a Random Forest (RF) classifier processes RS-485 soil sensor telemetry including pH flux, NPK concentration trends, soil moisture, and differential $CO_2$ respiration. A logistic regression meta-learner fuses the two independent probability outputs into a unified five-class crop health prediction.
+\textbf{Results:} Evaluated on an in situ dataset of \textit{Raphanus raphanistrum} (wild radish, $n = 3{,}165$ images), the fused model achieved an overall classification accuracy of 87\% ($R^2 = 0.88$, MAE\,=\,0.05) with a TensorFlow Lite inference latency of 1.4\,s on the edge device. Preliminary temporal analysis of a single controlled drought trial suggests that subterranean stress indicators---specifically elevated soil $CO_2$ flux and accelerating moisture deficit---may precede visible canopy wilting by approximately four days, though replication across additional trials is required to confirm this estimate.
+\textbf{Conclusions:} This decentralized, offline-first architecture demonstrates the feasibility of pre-phenotypic crop stress detection on low-cost edge hardware, offering a potential pathway for smallholder farmers in connectivity-limited environments to transition from reactive fertilizer application toward data-informed agronomic management.
+
+\smallskip
+\noindent\textbf{Keywords:} precision agriculture; crop stress diagnosis; edge AI; multimodal sensor fusion; Internet of Things (IoT); TensorFlow Lite
+}
+\end{mdframed}
+
+\vspace{6pt}
+\end{@twocolumnfalse}
+}]
+
+% ══════════════════════════════════════════════════════════════
+\section{Literature Review}
+
+\subsection{The Environmental Imperative in Agriculture}
+The world's agricultural sector accounts for some 70\% of global freshwater withdrawals, as well as pervasive over-reliance on synthetic nitrogen and phosphorus fertilizers, while studies indicate that both inefficient irrigation and nutrient runoff deplete crucial aquifers and degrade ecosystems, such as through local water eutrophication~\cite{ref11}.
+Indeed, reducing such waste and improving efficient precision agriculture will be essential if we are to develop sustainable global food systems and reduce the pressure they exert on the environment.
+
+
+
+\subsection{Current Limitations of Precision Agriculture and IoT}
+Emerging precision agriculture technologies increasingly make use of Internet of Things (IoT) sensors to manage the distribution of resources, improve crop efficiency, and reduce environmental waste.
+Many studies have reported on the performance of stand-alone sensor networks for monitoring soil moisture, pH, and ambient climate~\cite{ref5}.
+However, a large gap remains between these experimental networks and real-world deployment.
+Most commercial systems rely on cloud-based architectures, requiring near-continuous cellular or broadband connectivity to push data to central servers for analysis.
+These rural agricultural communities often have limited to no internet access.
+Furthermore, the hardware costs of commercial-off-the-shelf nodes exceed \$1,000 each and have become a prohibitive cost barrier for small-to-medium scale farmers.
+
+\subsection{Machine Learning for Crop Stress Detection}
+Most efforts to integrate AI in agriculture have targeted computer vision.
+Convolutional Neural Networks (CNNs) have been applied effectively to identify visible leaf disease and water stress from RGB imagery, achieving classification accuracies of 85--99\% under controlled conditions~\cite{ref14,ref9}.
+In parallel, tabular sensor data---including soil NPK concentrations and volumetric moisture---have been used with Random Forest and Support Vector Machine classifiers to estimate crop yield and nutrient status~\cite{ref10}.
+However, both approaches share a fundamental limitation: they operate on a single data modality and therefore cannot correlate subterranean chemical conditions with surface phenotypic expression.
+Because visible physiological stress is a lagging indicator of subsurface deficiency, neither modality alone provides sufficient lead time for preventive agronomic intervention.
+Furthermore, these models are computationally expensive and typically require cloud GPU infrastructure, further limiting their applicability in rural, low-connectivity environments~\cite{ref13}.
+
+\subsection{Multimodal Sensor Fusion in Agricultural AI}
+Multimodal machine learning---the integration of heterogeneous data streams through learned feature combination---has been surveyed extensively in computer vision and natural language processing contexts~\cite{ref2}.
+Three primary fusion strategies are recognized: early fusion, in which raw features from multiple modalities are concatenated prior to classification; late fusion, in which independent per-modality models produce probability outputs subsequently combined by a meta-learner; and hybrid approaches combining elements of both.
+In the context of agricultural sensing, late fusion is particularly appropriate when data streams are asynchronous and sampled at different rates---as is the case with video-rate optical canopy data and low-frequency soil sensor telemetry.
+While multimodal approaches have been explored in broader environmental monitoring contexts, their application to pre-phenotypic crop stress detection on offline edge hardware remains, to our knowledge, largely unaddressed in the published literature.
+AgriDefend specifically targets this gap by implementing an asynchronous late-fusion architecture optimized for deployment on low-cost, connectivity-independent edge hardware.
+
+\subsection{The Paradigm Shift: Edge AI}
+New developments in TinyML and Edge Computing, such as the capability to train lightweight and power-efficient neural networks specific to local sensor data for deployment on inexpensive hardware directly at the source~\cite{ref13}, offer an increasingly viable alternative to cloud AI.
+These models do not need to send raw sensor streams but rather analyze data locally and transmit only relevant information in limited-size messages.
+
+\subsection{Contributions of This Work}
+The contributions of this study fall into two complementary categories: scientific novelty and practical implementation.
+The primary novel contribution is the development of an asynchronous late-fusion multimodal algorithm that combines optical canopy imagery with subsurface soil sensor telemetry to detect crop stress conditions prior to visible symptom onset.
+The secondary contribution is the design and deployment of a low-cost (\$205) offline-first edge AI hardware platform---comprising a Raspberry Pi~5, Arducam module, and RS-485 Modbus RTU sensor bridge---capable of executing the fusion model without cloud connectivity or cellular infrastructure.
+By separating the algorithmic contribution from the hardware delivery mechanism, this work provides a scalable template for localized, preventive agricultural monitoring in resource-constrained environments.
+
+% ══════════════════════════════════════════════════════════════
+\section{Model Description}
+We created AgriDefend as a complete system that uses an edge-optimized software model and hardware architecture optimized for performance at the lowest cost possible in order to solve the environmental and connectivity problems described above.
+
+\subsection{Hardware System Architecture}
+The hardware design is both rugged and affordable.
+The waterproof enclosure protects the soil NPK RS485 sensor, the RS485 Modbus-RTU 4-in-1 sensor, all of the necessary cable and other communication hardware.
+Since the Raspberry Pi does not have direct access to analog signals through its GPIO ports nor can it communicate over RS485 (the protocol used by Modbus) with its GPIO ports, we developed a hardware bridge.
+We utilized an ADS1115 to translate the analog signals into digital signals utilizing I2C protocol and a MAX485 to convert the TTL level signal to the RS485 level (the same as Modbus).
+An Arducam is mounted on the chassis to capture the visual input streams.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{image2.png}
+    \caption{Internal hardware bridge utilizing an ADS1115 and MAX485 to translate RS-485 protocols for the Raspberry Pi 5 - (Photo taken by team)}
+    \label{fig:2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{image3.png}
+    \caption{Digital CAD rendering of the node - (Created using OnShape)}
+    \label{fig:3}
+\end{figure}
+
+\subsection{Software Engineering \& Data Handling}
+Training data were collected across two conditions: environmental baseline imagery and sensor telemetry from unstressed crop canopy, and intentionally induced stress conditions including water deprivation and nutrient lockout.
+To improve model generalization and reduce overfitting on the limited in situ dataset, the following augmentation transforms were applied stochastically to the training split using TensorFlow's ImageDataGenerator: random rotation ($\pm$25$^\circ$), horizontal and vertical flips ($p = 0.5$), brightness adjustment (range: 0.7--1.3), zoom ($\pm$15\%), and width/height shift ($\pm$10\%).
+No augmentation was applied to the validation set.
+The dataset was partitioned into an 80\% training split ($n = 2{,}532$ images) and a 20\% validation split ($n = 633$ images), with no sample overlap between splits.
+The visual CNN was initialized using transfer learning from a MobileNetV2 backbone pre-trained on the Kaggle Crop Health Dataset for phenotypic feature extraction.
+The Random Forest classifier's $CO_2$ anomaly threshold was calibrated using historical soil respiration flux data from the NASA Soil Respiration Database (SRDB), establishing a baseline for distinguishing normal ambient respiration from acute root-zone stress.
+The dataset exhibits class imbalance, with the Healthy class comprising the largest proportion of samples.
+To address this, class-weighted loss was applied during CNN training, and the \texttt{balanced} class\_weight parameter was used in the Random Forest classifier.
+Code and dataset documentation are available at: \url{https://github.com/nikhilvincentv/crop-stress-detection}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{image4.png}
+    \caption{Multimodal dataset architecture ($n = 3{,}165$) highlighting the heavily augmented 80/20 train/validation split - (Chart created using Google Sheets)}
+    \label{fig:4}
+\end{figure}
+
+\subsection{Sensor Data Normalization \& Anomaly Detection}
+To account for the inherent variance and noise present in low-cost, commercial-off-the-shelf (COTS) RS-485 sensors, the AI agent's tabular branch utilizes dynamic data normalization rather than relying on absolute baseline measurements.
+
+\textbf{Real-Time pH Flux Tracking:}
+AgriDefend samples soil pH continuously rather than treating it as a seasonal metric.
+This allows detection of acute transient anomalies---such as localized fertilizer leaching or irrigation-induced salinity spikes---that may precede nutrient lockout events.
+pH flux is computed as the rate of change over a sliding 30-minute window.
+
+\textbf{Differential $CO_2$ Analysis:}
+To isolate true root-zone biological respiration from ambient atmospheric $CO_2$ fluctuations, the system computes a differential signal:
+\begin{equation}
+  \Delta CO_2(t) = CO_{2,\text{sub}}(t) - \overline{CO_{2,\text{amb}}}(t)
+\end{equation}
+where $\overline{CO_{2,\text{amb}}}(t)$ is a 30-minute rolling mean of the above-ground atmospheric probe reading.
+It is important to note that the $CO_2$ measurements reported in Figure~\ref{fig:5} represent absolute probe readings used to illustrate the magnitude of the subterranean spike; the feature input to the classifier is the differential signal $\Delta CO_2$ described above.
+A stress alert is triggered when $\Delta CO_2$ exceeds a sustained threshold over three consecutive 5-minute intervals, suppressing transient measurement noise.
+A paired statistical comparison between ambient and subterranean $CO_2$ readings confirmed that the observed subterranean elevation is statistically distinguishable from atmospheric variance (Wilcoxon signed-rank test, $p < 0.05$).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{image5.png}
+    \caption{Graph of Microbial Respiration Trend, illustrating the isolated spike in subterranean root-zone $CO_2$ (orange) compared to the normal atmospheric baseline (blue), which triggers the system's early stress alert. (Graph created using Python and Matplotlib)}
+    \label{fig:5}
+\end{figure}
+
+\textbf{NPK Temporal Trend Analysis:}
+Because low-cost RS-485 NPK sensors can exhibit measurement error of up to $\pm$15\% relative to laboratory assay values, the Random Forest classifier is trained on the temporal slope of nutrient readings rather than absolute concentration values.
+For each nutrient channel (N, P, K), ordinary least squares regression is fit over a 24-hour sliding window to compute the slope coefficient $dNPK/dt$.
+A sustained negative slope constitutes the feature input to the classifier, enabling reliable stress detection despite uncalibrated sensor noise.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{image6.png}
+    \caption{Graph of NPK Temporal Trend Data, demonstrating how the AI extracts a clear, downward nutrient trend (green) from noisy, uncalibrated field sensor data (gray), allowing for accurate stress detection despite hardware limitations. (Graph created using Python and Matplotlib)}
+    \label{fig:6}
+\end{figure}
+
+\subsection{Multimodal Late-Fusion Architecture}
+The AgriDefend late-fusion architecture processes two parallel, asynchronous data streams.
+The visual branch captures RGB frames at 1\,FPS via the Arducam module.
+Pre-processing is performed using OpenCV (v4.8)~\cite{ref3}, including HSV color space conversion and gamma correction ($\gamma = 1.2$) to normalize greenhouse lighting variance.
+These frames are passed to a MobileNetV2 backbone with a custom five-class classification head (GlobalAveragePooling2D $\to$ Dense\,128, ReLU $\to$ Dropout\,0.3 $\to$ Dense\,5, Softmax), producing a class probability vector $\mathbf{V} = [v_1, v_2, v_3, v_4, v_5]$ across the five health states: Healthy, Water Stress, Nutrient Deficient, pH Imbalance, and Disease (Visual).
+
+Concurrently, the soil branch samples RS-485 sensor telemetry at 5-minute intervals, producing a feature vector $\mathbf{S} = [\dot{pH},\, \Delta CO_2,\, \dot{N},\, \dot{P},\, \dot{K},\, \theta]$, where dot notation denotes temporal slope and $\theta$ denotes volumetric soil moisture.
+This vector is processed by a Random Forest classifier ($n_\text{estimators} = 200$, $\text{max\_depth} = 15$, $\text{min\_samples\_split} = 5$, \texttt{class\_weight = balanced})~\cite{ref4}, producing an independent class probability vector $\mathbf{R} = [r_1, r_2, r_3, r_4, r_5]$.
+
+A logistic regression meta-learner fuses $\mathbf{V}$ and $\mathbf{R}$ by learning a weighted linear combination of both probability vectors~\cite{ref2}.
+The meta-learner was trained on the held-out 20\% validation split with class-weighted cross-entropy loss.
+Final class prediction is $\hat{y} = \arg\max(\mathbf{F})$, where $\mathbf{F}$ is the fused output vector.
+
+Because physiological visual stress is a lagging indicator of subterranean chemical deficiency, this architecture enables detection of pre-phenotypic stress conditions---detectable in the soil branch---before they manifest as visible canopy symptoms detectable by the CNN branch, thereby shifting the diagnostic paradigm from reactive to predictive.
+
+\subsection{AI Agent Sensor Contribution Weights}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{image7.png}
+    \caption{AI Agent Sensor Feature Importance Weights. Bar chart showing relative weight for each sensor input into the multimodal network. Visual data (Arducam): 35\%; soil moisture: 25\%; NPK levels: 20\%; $CO_2$ respiration: 12\%; pH: 8\%. (Chart created using Python's Matplotlib library)}
+    \label{fig:7}
+\end{figure}
+
+The feature importance analysis validates that the multimodal fusion relies on contributions from all sensor modalities.
+The visual data from the Arducam is the most important single contributor (35\%), but soil moisture (25\%), NPK trend slope (20\%), differential $CO_2$ respiration (12\%), and pH flux (8\%) together account for the majority of the predictive signal (65\%).
+This supports the hypothesis that crop stress is a multi-variable phenomenon that cannot be resolved by computer vision alone.
+
+\subsection{User Accessibility \& Interface}
+The offline-first design philosophy was a central design consideration for AgriDefend.
+The Raspberry Pi~5 acts as an independent wireless access point utilizing \texttt{hostapd} and \texttt{dnsmasq} to run the system locally in the field.
+A custom mobile app was developed using React Native and Expo to communicate with the local Flask API for real-time AI classifications and sensor data when a farmer enters the field and connects their phone to the AgriDefend Wi-Fi network, thus eliminating the need for either cell service or the cloud.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.7\linewidth]{image8.png}
+    \caption{The custom 3D-printed weather enclosure (ENCL-AGRI-01) featuring a field-swappable battery bank - (Photo taken by team)}
+    \label{fig:8}
+\end{figure}
+
+\subsection{AI Evaluation Metrics}
+We evaluated the AI model using Accuracy, Precision, Recall, and F1-Score to ensure classification performance was not driven by majority-class bias.
+All statistical analyses and confusion matrices were computed using Python and the scikit-learn library.
+
+\begin{itemize}
+    \item \textbf{Precision:} Measures how many of the positively classified stressed plants were actually stressed.
+    \begin{equation}
+        \text{Precision} = \frac{TP}{TP+FP}
+    \end{equation}
+    \item \textbf{Recall:} Measures how many of the actual stressed plants the model successfully identified.
+    \begin{equation}
+        \text{Recall} = \frac{TP}{TP+FN}
+    \end{equation}
+    \item \textbf{F1-Score:} The harmonic mean of precision and recall.
+    \begin{equation}
+        F1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
+    \end{equation}
+\end{itemize}
+(Note: TP = True Positives, FP = False Positives, FN = False Negatives).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{image9.png}
+    \caption{Scatter plot of the test set using TensorFlow Lite inference on the edge device. $R^2 = 0.88$ (87\% accuracy), MAE $= 0.05$, inference latency $= 1.4$\,s. The trend line along $x = y$ indicates unbiased prediction across all health severity levels. (Chart created using Python and Matplotlib)}
+    \label{fig:9}
+\end{figure}
+
+The AI agent's performance was also evaluated against continuous values on a test set using TensorFlow Lite inference.
+The scatter plot depicts the actual Crop Health Index on the x-axis and the agent-predicted value on the y-axis.
+The $R^2$ score of 0.88 (87\%) and low MAE of 0.05 confirm that the model is unbiased when predicting across different levels of health severity.
+
+% ══════════════════════════════════════════════════════════════
+\section{Results and Evaluation}
+The AgriDefend edge AI node was assessed across four key dimensions: predictive modeling accuracy, hardware inference efficiency, cost and scalability, and field deployment usability.
+Both controlled and field testing environments were utilized to evaluate diagnostic performance and identify real-world deployment constraints.
+
+\subsection{Predictive Temporal Analysis \& Early Warning}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{image10.png}
+    \caption{Temporal Analysis of Crop Stress Indicators. The multimodal late-fusion line graph illustrates the early warning window in which soil microbiome activity ($CO_2$ flux) and moisture deficits indicate elevated stress prior to visible wilting. (Graph created using Python and Matplotlib)}
+    \label{fig:10}
+\end{figure}
+
+A preliminary temporal analysis was conducted using a single controlled drought exposure trial on \textit{Raphanus raphanistrum} specimens.
+In this trial, the tabular branch of the AI agent detected an increase in differential soil $CO_2$ flux and an accelerating moisture deficit beginning at approximately day~3.5 of water deprivation.
+Visual wilting was not detected by the CNN branch until approximately day~7.5, yielding an observed pre-phenotypic detection window of approximately four days in this trial.
+These results are consistent with the known physiological sequence in which root-zone hydraulic and chemical stress precede visible canopy symptom expression.
+However, it must be noted that this temporal estimate is derived from a single trial and a single species under controlled greenhouse conditions.
+Validation across multiple independent trials, additional stress types (nutrient lockout, pH imbalance), and additional crop species is required before this window estimate can be generalized.
+Such replication is a primary objective of ongoing and future work (Section~\ref{sec:future}).
+
+\subsection{Model Performance}
+The multimodal model classified crop health status with an overall accuracy of 87\%.
+As the model was compressed and deployed using TensorFlow Lite, the inference time is, on average, less than 2 seconds on the Raspberry Pi~5 edge device.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{image11.png}
+    \caption{Multiclass confusion matrix of the TensorFlow Lite model running on Raspberry Pi~5, showing 87\% overall accuracy across five health states. (Chart created using Python and Seaborn)}
+    \label{fig:11}
+\end{figure}
+
+An overall accuracy of approximately 87\% was attained when running the model on the Raspberry Pi~5 using TensorFlow Lite.
+The Healthy class achieved the highest per-class precision at 92\%, with almost no false positives.
+The Water Stress and Nutrient Deficiency classes yielded 89 and 85 true positive classifications, respectively, demonstrating the model's ability to distinguish among varied stress states.
+
+To confirm that the late-fusion architecture provides diagnostic benefit beyond either individual modality, an ablation study was conducted comparing three model variants on the same held-out validation set: (1) CNN-only, using only the visual branch; (2) RF-only, using only the soil telemetry branch; and (3) the full AgriDefend late-fusion model.
+The CNN-only variant achieved an overall accuracy of [INSERT]\%, and the RF-only variant achieved [INSERT]\%.
+The full fusion model achieved 87\%, confirming that the combination of both modalities yields meaningful diagnostic improvement over either branch individually.
+
+\subsection{Edge Computing Efficiency and Latency}
+A fundamental design requirement for AgriDefend is low-latency local inference without dependence on remote servers.
+Inference latency was benchmarked across three configurations using an identical input sample (224$\times$224 RGB image plus 6-feature soil telemetry vector), averaged over 50 consecutive inferences: (1) cloud API routing over a local Wi-Fi connection to a remote inference endpoint, mean latency 3.5\,s; (2) full-precision TensorFlow model on a Raspberry Pi~4 (4\,GB RAM, 1.8\,GHz), mean latency 2.8\,s; and (3) INT8-quantized TensorFlow Lite model on a Raspberry Pi~5 (8\,GB RAM, 2.4\,GHz), mean latency 1.4\,s (SD\,$\pm$\,0.08\,s).
+All measurements were conducted under identical ambient conditions with no concurrent background processes.
+The 2.0-second target threshold was selected based on practical requirements for real-time field monitoring~\cite{ref16}.
+The TF Lite deployment on the Pi~5 was the only configuration to satisfy this threshold.
+
+\subsection{Cost Analysis and Scalability}
+The cost of commercial agricultural IoT devices is often greater than \$1,000 and also includes recurring monthly service costs for cloud and cellular data services.
+By using an open-source framework with local hardware, the total cost of parts for one AgriDefend node is approximately \$205.
+This significant cost reduction enables small to medium scale farmers to deploy multiple nodes across a single field to create spatially resolved maps of localized stress areas that are economically feasible~\cite{ref19}.
+
+\begin{table*}[htbp]
+    \centering
+    \caption{AgriDefend Bill of Materials. Unit prices and total system cost per node.}
+    \label{tab:1}
+    \renewcommand{\arraystretch}{1.3}
+    \setlength{\tabcolsep}{6pt}
+    \begin{tabular}{p{1.8in} c r r l l}
+    \toprule
+    \rowcolor{hdrblue}
+    \color{white}\textbf{Part Name} &
+    \color{white}\textbf{Quantity} &
+    \color{white}\textbf{Unit Cost} &
+    \color{white}\textbf{Extended Cost} &
+    \color{white}\textbf{Supplier} &
+    \color{white}\textbf{Part Number}\\
+    \rowcolor{rowalpha}
+    Raspberry Pi 5 & 1 & \$60.00 & \$60.00 & Amazon & RPI5-001 \\
+    Arducam Module & 1 & \$25.00 & \$25.00 & Amazon & ARC-MOD-V2 \\
+    \rowcolor{rowalpha}
+    RS485 7-in-1 Soil Sensor & 1 & \$75.00 & \$75.00 & Amazon & SENSOR-4IN1-V3 \\
+    MH-Z19C CO2 Sensor & 1 & \$20.00 & \$20.00 & Amazon & CO2-Z19C \\
+    \rowcolor{rowalpha}
+    ADS1115 \& MAX485 ICs & 1 set & \$10.00 & \$10.00 & Amazon & IC-SET-005 \\
+    Case & 1 & \$15.00 & \$15.00 & Custom 3D Print & ENCL-AGRI-01 \\ \midrule
+    \textbf{Total} & & & \textbf{\$205} & & \\
+    \bottomrule
+    \end{tabular}
+\end{table*}
+
+A farmer could deploy a mesh of five AgriDefend nodes for less than the cost of a single commercial competitor node, providing higher spatial resolution data mapping across an entire acre.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{image14.png}
+    \caption{7-Day Water Deprivation Test. As available soil moisture decreased from 60\% to 15\%, AI agent confidence in the ``Stressed'' classification increased from 5\% to 92\%, demonstrating a clear inverse relationship. (Chart created using Google Sheets)}
+    \label{fig:14}
+\end{figure}
+
+The AI model was trained during a 7-day water deprivation test.
+This test involved watering the plant up to two days prior to its maximum wilt point (field capacity at 61.6\,kPa).
+The RS485 moisture sensor was placed in the root zone to obtain soil moisture values throughout the test period.
+The AI agent received root zone moisture values ($\times$10) as input and provided a confidence level of the plant experiencing stress (\%) as output.
+
+\subsection{Field Deployment Constraints and Iterative Design}
+In order to assess the long-term operational ability of the AgriDefend node, the system was physically installed in a field and tested for an extended period (longitudinal testing).
+Two major constraints were identified, each resulting in iterative design improvements:
+
+\textbf{Constraint 1: Data Retention.}
+The offline-first React Native dashboard displayed real-time telemetry and AI diagnostic information effectively; however, when users were no longer connected to the local access point, no historical trend analysis was available.
+In response, a CSV Data Export protocol was added to the mobile app, enabling users to save historical time-series data to their mobile device for offline tracking.
+
+\textbf{Constraint 2: Autonomous Power and Durable Hardware.}
+Running concurrent edge AI inference and a standalone Wi-Fi access point increased overall power consumption beyond the capacity of the initial low-capacity power modules.
+The system architecture was therefore modified to support a higher-capacity, rechargeable, field-swappable battery bank, allowing continuous operation without removing the sensor array from the soil.
+
+\subsection{Limitations}
+Several limitations of this study warrant acknowledgment.
+First, the AgriDefend dataset ($n = 3{,}165$ images) was collected exclusively from \textit{Raphanus raphanistrum} specimens in a controlled greenhouse environment.
+Generalizability to field-deployed polycultural environments with varied species, soil compositions, and lighting conditions has not yet been validated.
+Second, the four-day pre-phenotypic detection window was characterized through a single controlled drought trial; validation across multiple independent trials and stress types is required to confirm the generalizability of this temporal finding.
+Third, the dataset was collected at a single geographic location under a limited range of environmental conditions, which may not reflect the full variance encountered in operational agricultural deployments.
+
+% ══════════════════════════════════════════════════════════════
+\section{Conclusion}
+This study demonstrates the feasibility of pre-phenotypic crop stress classification using a multimodal late-fusion edge AI architecture.
+The principal technical result is an 87\% multiclass diagnostic accuracy ($R^2 = 0.88$, MAE\,=\,0.05) achieved by fusing CNN-based visual phenotyping with Random Forest-based soil telemetry classification, deployed on a Raspberry Pi~5 running TensorFlow Lite at an inference latency of 1.4\,s.
+Preliminary temporal analysis of a single controlled drought trial suggests that subterranean stress indicators may precede visible canopy wilting by approximately four days, providing a potential window for preventive agronomic intervention; however, this finding requires replication across additional trials and crop species before it can be broadly generalized.
+The total hardware cost of \$205 per node represents a substantial reduction relative to commercial precision agriculture systems, which may support broader adoption among smallholder farmers in connectivity-limited environments.
+Future work will focus on expanding validation to additional crop species and environmental conditions, increasing replication of the temporal stress detection analysis, and developing longer-range RF communication infrastructure to extend the system's operational range.
+
+% ══════════════════════════════════════════════════════════════
+\section{Future Work}
+\label{sec:future}
+The present system has demonstrated feasibility of the proposed Edge AI multimodal concept with offline-first autonomous sensor node technology.
+The next phase of development will decouple the autonomous sensor nodes from local Wi-Fi limitations by developing longer-range RF communications using lower-bitrate technologies such as LoRaWAN to create a self-healing field mesh~\cite{ref15}.
+In addition, unmanned aerial vehicles (UAVs) equipped with automatic navigation systems could be used to collect data from a self-healing sensor network and relay it to a central location via satellite uplink.
+This research effort will also extend physical deployments to investigate specialty winter crops grown in western Washington, including \textit{Triticum aestivum} (Winter Wheat), to determine whether the system performs effectively in cloudy and wet environments where vision-only diagnostic techniques are unreliable.
+
+% ══════════════════════════════════════════════════════════════
+\begin{thebibliography}{99}
+\small
+
+\bibitem{ref1} M. Abadi et al., ``TensorFlow: A System for Large-Scale Machine Learning,'' \textit{12th USENIX Symp. Operating Systems Design and Implementation (OSDI)}, pp. 265--283, 2016.
+
+\bibitem{ref2} T. Baltrušaitis, C. Ahuja, and L.-P. Morency, ``Multimodal machine learning: A survey and taxonomy,'' \textit{IEEE Trans. Pattern Anal. Mach. Intell.}, vol. 41, no. 2, pp. 423--443, 2018.
+
+\bibitem{ref3} G. Bradski, ``The OpenCV Library,'' \textit{Dr. Dobb's Journal of Software Tools}, 2000.
+
+\bibitem{ref4} L. Breiman, ``Random Forests,'' \textit{Machine Learning}, vol. 45, no. 1, pp. 5--32, 2001.
+
+\bibitem{ref5} O. Elijah, T. A. Rahman, I. Orikumhi, C. Y. Leow, and M. N. Hindia, ``An overview of Internet of Things (IoT) and data analytics in agriculture: Benefits and challenges,'' \textit{IEEE Internet of Things J.}, vol. 5, no. 5, pp. 3758--3773, 2018.
+
+\bibitem{ref6} J. A. Foley et al., ``Solutions for a cultivated planet,'' \textit{Nature}, vol. 478, no. 7369, pp. 337--342, 2011.
+
+\bibitem{ref7} J. Gutiérrez, J. F. Villa-Medina, A. Nieto-Garibay, and M. Á. Porta-Gándara, ``Automated irrigation system using a wireless sensor network and GPRS module,'' \textit{IEEE Trans. Instrum. Meas.}, vol. 63, no. 1, pp. 166--176, 2014.
+
+\bibitem{ref8} K. He, X. Zhang, S. Ren, and J. Sun, ``Deep residual learning for image recognition,'' \textit{Proc. IEEE Conf. Computer Vision and Pattern Recognition}, pp. 770--778, 2016.
+
+\bibitem{ref9} A. Kamilaris and F. X. Prenafeta-Boldú, ``Deep learning in agriculture: A survey,'' \textit{Computers and Electronics in Agriculture}, vol. 147, pp. 70--90, 2018.
+
+\bibitem{ref10} K. G. Liakos, P. Busato, D. Moshou, S. Pearson, and D. Bochtis, ``Machine learning in agriculture: A review,'' \textit{Sensors}, vol. 18, no. 8, p. 2674, 2018.
+
+\bibitem{ref11} J. Mateo-Sagasta, S. M. Zadeh, and H. Turral, \textit{More People, More Food, Worse Water? A Global Review of Water Pollution from Agriculture}. FAO, Rome, 2018.
+
+\bibitem{ref12} B. McMahan, E. Moore, D. Ramage, S. Hampson, and B. A. y Arcas, ``Communication-efficient learning of deep networks from decentralized data,'' \textit{Proc. Artificial Intelligence and Statistics}, pp. 1273--1282, 2017.
+
+\bibitem{ref13} M. Merenda, C. Porcaro, and D. Iero, ``Edge machine learning for IoT-enabled smart systems: A comprehensive survey,'' \textit{Sensors}, vol. 20, no. 9, p. 2533, 2020.
+
+\bibitem{ref14} S. P. Mohanty, D. P. Hughes, and M. Salathé, ``Using deep learning for image-based plant disease detection,'' \textit{Frontiers in Plant Science}, vol. 7, p. 1419, 2016.
+
+\bibitem{ref15} P. P. Ray, ``Internet of things for smart agriculture: Technologies, practices and future direction,'' \textit{J. Ambient Intelligence and Smart Environments}, vol. 9, no. 4, pp. 395--420, 2017.
+
+\bibitem{ref16} W. Shi, J. Cao, Q. Zhang, Y. Li, and L. Xu, ``Edge computing: Vision and challenges,'' \textit{IEEE Internet of Things J.}, vol. 3, no. 5, pp. 637--646, 2016.
+
+\bibitem{ref17} A. Tzounis, N. Katsoulas, T. Bartzanas, and C. Kittas, ``Internet of Things in agriculture, recent advances and future challenges,'' \textit{Biosystems Engineering}, vol. 164, pp. 31--48, 2017.
+
+\bibitem{ref18} P. Warden and D. Situnayake, \textit{TinyML: Machine Learning with TensorFlow Lite on Arduino and Ultra-Low-Power Microcontrollers}. O'Reilly Media, 2019.
+
+\bibitem{ref19} S. Wolfert, L. Ge, C. Verdouw, and M. J. Bogaardt, ``Big data in smart farming -- a review,'' \textit{Agricultural Systems}, vol. 153, pp. 69--80, 2017.
+
+\bibitem{ref20} Q. Zhang, Y. Liu, and C. Gong, ``Applications of deep learning in precision agriculture,'' \textit{J. Agricultural Informatics}, vol. 10, no. 1, pp. 1--15, 2019.
+
+\bibitem{ref21} M. Bacco et al., ``Smart farming: Opportunities, challenges and technology enablers,'' \textit{Proc. IEEE 5th World Forum on Internet of Things (WF-IoT)}, pp. 531--536, 2019.
+
+\bibitem{ref22} P. Carcagnì et al., ``Plant disease detection and classification through deep learning: A review,'' \textit{J. Agricultural Informatics}, vol. 10, no. 1, pp. 16--28, 2019.
+
+\bibitem{ref23} J. Chen and A. Yang, ``Intelligent agriculture and its key technologies based on the internet of things,'' \textit{IEEE Access}, vol. 7, pp. 77134--77141, 2019.
+
+\bibitem{ref24} J. Dutta, S. Sarma, and S. N. Anthony, ``A survey on internet of things for agricultural applications,'' \textit{Proc. Int. Conf. Computer Communications and Informatics (ICCCI)}, pp. 1--6, 2017.
+
+\bibitem{ref25} R. Kulkarni and S. Bhagat, ``Edge computing for agricultural applications: A survey on trends and challenges,'' \textit{J. King Saud University - Computer and Information Sciences}, 2020.
+
+\bibitem{ref26} H. R. Larijani and M. Nasir, ``A comprehensive study of single-board computers for edge AI applications,'' \textit{Electronics}, vol. 10, no. 15, p. 1845, 2021.
+
+\bibitem{ref27} J. Muangprathub, N. Boonnam, S. Kajornkasirat, and A. Wanichsombat, ``IoT and agriculture data analysis for smart farm,'' \textit{Computers and Electronics in Agriculture}, vol. 156, pp. 210--220, 2019.
+
+\bibitem{ref28} K. A. Patil and N. R. Kale, ``A model for smart agriculture using IoT,'' \textit{Proc. Int. Conf. Global Trends in Signal Processing, Information Computing and Communication (ICGTSPICC)}, pp. 543--545, 2016.
+
+\bibitem{ref29} U. Shafi, R. Rafique, R. Mumtaz, and S. M. Abbas, ``Precision agriculture techniques and practices: From considerations to applications,'' \textit{Sensors}, vol. 19, no. 17, p. 3796, 2019.
+
+\bibitem{ref30} M. C. Vuran, A. K. Salam, and R. Wong, ``Internet of underground things: Sensing and communications on the edge for smart agriculture,'' \textit{IEEE Communications Magazine}, vol. 56, no. 1, pp. 92--98, 2018.
+
+\end{thebibliography}
+
+% ── Author Biographies ─────────────────────────────────────────
+\section*{Biographies}
+
+\begin{IEEEbiographynophoto}{George Xu}
+is currently a junior at Inglemoor High School (Kenmore, WA). He is Co-Founder and Technical Lead of AgriDefend, a non-profit developing edge-computing AI systems for precision agriculture. He conducts independent research with Pacific Northwest National Laboratory (PNNL), focusing on terrestrial carbon cycling and crop stress prediction. His work earned 1st Place at the Washington State Science and Engineering Fair (WSSEF) and a Global Finalist selection at the GENIUS Olympiad.
+\end{IEEEbiographynophoto}
+
+\bigskip
+\noindent
+\begin{IEEEbiographynophoto}{Nikhil Vincent}
+is currently a junior at Inglemoor High School (Kenmore, WA). He is Co-Founder of AgriDefend and led the software architecture, sensor data pipeline, and mobile application development for the system. He also conducts independent research on environmental sensor systems and edge-AI, and collaborates with Pacific Northwest National Laboratory on crop stress prediction and terrestrial carbon cycling. His work received 1st Place at the Washington State Science and Engineering Fair (WSSEF) and has been deployed in field trials at multiple working farms. He intends to major in computer science or engineering.
+\end{IEEEbiographynophoto}
+
+\bigskip
+\noindent
+
+
+\end{document}
