@@ -24,3 +24,6 @@ models/cnn_multispecies.h5
 
 # Logs
 *.log
+
+# Local Claude settings
+.claude/

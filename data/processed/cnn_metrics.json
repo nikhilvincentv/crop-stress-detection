@@ -1,0 +1,6 @@
+{
+  "cnn_only_accuracy": 0.9888592210662002,
+  "tflite_mb": 2.876744,
+  "latency_s_devbox": 0.0027467224999963946,
+  "n_images": 54303
+}
